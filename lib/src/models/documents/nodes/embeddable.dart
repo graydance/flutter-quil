@@ -44,6 +44,10 @@ class BlockEmbed extends Embeddable {
   static const String customType = 'custom';
   static BlockEmbed custom(CustomBlockEmbed customBlock) =>
       BlockEmbed(customType, customBlock.toJsonString());
+
+  static const String convertedMediaType = 'converted-media';
+  static BlockEmbed media(String mediaUrl) =>
+      BlockEmbed(convertedMediaType, mediaUrl);
 }
 
 class CustomBlockEmbed extends BlockEmbed {

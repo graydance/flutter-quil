@@ -50,7 +50,8 @@ class Rules {
     const EnsureEmbedLineRule(),
     const PreserveLineStyleOnMergeRule(),
     const CatchAllDeleteRule(),
-    const EnsureLastLineBreakDeleteRule()
+    const EnsureLastLineBreakDeleteRule(),
+    const IgnoreRule(),
   ]);
 
   static Rules getInstance() => _instance;

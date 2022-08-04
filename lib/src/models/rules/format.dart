@@ -197,3 +197,23 @@ class ResolveImageFormatRule extends FormatRule {
     return delta;
   }
 }
+
+class IgnoreRule extends FormatRule {
+  const IgnoreRule();
+
+  @override
+  Delta? applyRule(Delta document, int index,
+      {int? len, Object? data, Attribute? attribute}) {
+    if (attribute == null) {
+      return null;
+    }
+
+    assert(len == 1 && data == null);
+
+    final delta = Delta()
+      ..retain(index)
+      ..retain(1, attribute.toJson());
+
+    return delta;
+  }
+}
