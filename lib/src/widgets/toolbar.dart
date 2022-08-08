@@ -117,6 +117,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
     OnImagePickCallback? onImagePickCallback,
     OnVideoPickCallback? onVideoPickCallback,
     MediaPickSettingSelector? mediaPickSettingSelector,
+    MediaPickSettingSelector? cameraPickSettingSelector,
     FilePickImpl? filePickImpl,
     WebImagePickImpl? webImagePickImpl,
     WebVideoPickImpl? webVideoPickImpl,
@@ -364,6 +365,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             filePickImpl: filePickImpl,
             webImagePickImpl: webImagePickImpl,
             webVideoPickImpl: webVideoPickImpl,
+            cameraPickSettingSelector: cameraPickSettingSelector,
             iconTheme: iconTheme,
           ),
         if (showFormulaButton)
