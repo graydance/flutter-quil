@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:youtube_player_flutter_quill/youtube_player_flutter_quill.dart';
 
 import '../widgets/responsive_widget.dart';
 import 'fake_ui.dart' if (dart.library.html) 'real_ui.dart' as ui_instance;
@@ -59,13 +58,13 @@ Widget defaultEmbedBuilderWeb(
         ),
       );
     case BlockEmbed.videoType:
-      var videoUrl = node.value.data;
-      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
-        final youtubeID = YoutubePlayer.convertUrlToId(videoUrl);
-        if (youtubeID != null) {
-          videoUrl = 'https://www.youtube.com/embed/$youtubeID';
-        }
-      }
+      final videoUrl = node.value.data;
+      // if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+      //   final youtubeID = YoutubePlayer.convertUrlToId(videoUrl);
+      //   if (youtubeID != null) {
+      //     videoUrl = 'https://www.youtube.com/embed/$youtubeID';
+      //   }
+      // }
 
       UniversalUI().platformViewRegistry.registerViewFactory(
           videoUrl,

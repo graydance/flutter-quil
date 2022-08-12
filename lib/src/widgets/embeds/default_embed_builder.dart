@@ -17,7 +17,6 @@ import '../controller.dart';
 import 'image.dart';
 import 'image_resizer.dart';
 import 'video_app.dart';
-import 'youtube_video_app.dart';
 
 Widget defaultEmbedBuilder(
   BuildContext context,
@@ -146,10 +145,10 @@ Widget defaultEmbedBuilder(
       return _menuOptionsForReadonlyImage(context, imageUrl, image);
     case BlockEmbed.videoType:
       final videoUrl = node.value.data;
-      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
-        return YoutubeVideoApp(
-            videoUrl: videoUrl, context: context, readOnly: readOnly);
-      }
+      // if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+      //   return YoutubeVideoApp(
+      //       videoUrl: videoUrl, context: context, readOnly: readOnly);
+      // }
       return VideoApp(
         videoUrl: videoUrl,
         context: context,
