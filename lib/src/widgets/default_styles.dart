@@ -268,9 +268,9 @@ class DefaultStyles {
         ),
         placeHolder: DefaultTextBlockStyle(
             defaultTextStyle.style.copyWith(
-              fontSize: 20,
+              fontSize: 15,
               height: 1.5,
-              color: Colors.grey.withOpacity(0.6),
+              color: const Color(0xFFA8A8A8),
             ),
             const Tuple2(0, 0),
             const Tuple2(0, 0),
