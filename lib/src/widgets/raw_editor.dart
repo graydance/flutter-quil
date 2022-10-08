@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+// ignore: unnecessary_import
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -26,7 +29,6 @@ import 'cursor.dart';
 import 'default_styles.dart';
 import 'delegate.dart';
 import 'editor.dart';
-import 'embeds/default_embed_builder.dart';
 import 'keyboard_listener.dart';
 import 'link.dart';
 import 'proxy.dart';
@@ -46,6 +48,7 @@ class RawEditor extends StatefulWidget {
       required this.cursorStyle,
       required this.selectionColor,
       required this.selectionCtrls,
+      required this.embedBuilder,
       Key? key,
       this.scrollable = true,
       this.padding = EdgeInsets.zero,
@@ -70,10 +73,10 @@ class RawEditor extends StatefulWidget {
       this.keyboardAppearance = Brightness.light,
       this.enableInteractiveSelection = true,
       this.scrollPhysics,
-      this.embedBuilder = defaultEmbedBuilder,
       this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
       this.customStyleBuilder,
-      this.floatingCursorDisabled = false})
+      this.floatingCursorDisabled = false,
+      this.onImagePaste})
       : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
         assert(minHeight == null || minHeight >= 0, 'minHeight cannot be null'),
         assert(maxHeight == null || minHeight == null || maxHeight >= minHeight,
@@ -220,8 +223,10 @@ class RawEditor extends StatefulWidget {
   /// See [Scrollable.physics].
   final ScrollPhysics? scrollPhysics;
 
+  final Future<String?> Function(Uint8List imageBytes)? onImagePaste;
+
   /// Builder function for embeddable objects.
-  final EmbedBuilder embedBuilder;
+  final EmbedsBuilder embedBuilder;
   final LinkActionPickerDelegate linkActionPickerDelegate;
   final CustomStyleBuilder? customStyleBuilder;
   final bool floatingCursorDisabled;
@@ -363,14 +368,25 @@ class RawEditorState extends EditorState
 
     return QuillStyles(
       data: _styles!,
-      child: Actions(
-        actions: _actions,
-        child: Focus(
-          focusNode: widget.focusNode,
-          child: QuillKeyboardListener(
-            child: Container(
-              constraints: constraints,
-              child: child,
+      child: Shortcuts(
+        shortcuts: <LogicalKeySet, Intent>{
+          // shortcuts added for Windows platform
+          LogicalKeySet(LogicalKeyboardKey.escape):
+              const HideSelectionToolbarIntent(),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
+              const UndoTextIntent(SelectionChangedCause.keyboard),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
+              const RedoTextIntent(SelectionChangedCause.keyboard),
+        },
+        child: Actions(
+          actions: _actions,
+          child: Focus(
+            focusNode: widget.focusNode,
+            child: QuillKeyboardListener(
+              child: Container(
+                constraints: constraints,
+                child: child,
+              ),
             ),
           ),
         ),
@@ -1012,25 +1028,45 @@ class RawEditorState extends EditorState
     }
     // Snapshot the input before using `await`.
     // See https://github.com/flutter/flutter/issues/11427
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data == null) {
+    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    if (text != null) {
+      _replaceText(
+          ReplaceTextIntent(textEditingValue, text.text!, selection, cause));
+
+      bringIntoView(textEditingValue.selection.extent);
+
+      // Collapse the selection and hide the toolbar and handles.
+      userUpdateTextEditingValue(
+        TextEditingValue(
+          text: textEditingValue.text,
+          selection:
+              TextSelection.collapsed(offset: textEditingValue.selection.end),
+        ),
+        cause,
+      );
+
       return;
     }
 
-    _replaceText(
-        ReplaceTextIntent(textEditingValue, data.text!, selection, cause));
+    if (widget.onImagePaste != null) {
+      final image = await Pasteboard.image;
 
-    bringIntoView(textEditingValue.selection.extent);
+      if (image == null) {
+        return;
+      }
 
-    // Collapse the selection and hide the toolbar and handles.
-    userUpdateTextEditingValue(
-      TextEditingValue(
-        text: textEditingValue.text,
-        selection:
-            TextSelection.collapsed(offset: textEditingValue.selection.end),
-      ),
-      cause,
-    );
+      final imageUrl = await widget.onImagePaste!(image);
+      if (imageUrl == null) {
+        return;
+      }
+
+      controller.replaceText(
+        textEditingValue.selection.end,
+        0,
+        BlockEmbed.image(imageUrl),
+        null,
+      );
+    }
   }
 
   /// Select the entire text value.
@@ -1173,6 +1209,11 @@ class RawEditorState extends EditorState
     CopySelectionTextIntent: _makeOverridable(_CopySelectionAction(this)),
     PasteTextIntent: _makeOverridable(CallbackAction<PasteTextIntent>(
         onInvoke: (intent) => pasteText(intent.cause))),
+
+    HideSelectionToolbarIntent:
+        _makeOverridable(_HideSelectionToolbarAction(this)),
+    UndoTextIntent: _makeOverridable(_UndoKeyboardAction(this)),
+    RedoTextIntent: _makeOverridable(_RedoKeyboardAction(this)),
   };
 
   @override
@@ -1868,4 +1909,56 @@ class _CopySelectionAction extends ContextAction<CopySelectionTextIntent> {
   bool get isActionEnabled =>
       state.textEditingValue.selection.isValid &&
       !state.textEditingValue.selection.isCollapsed;
+}
+
+//Intent class for "escape" key to dismiss selection toolbar in Windows platform
+class HideSelectionToolbarIntent extends Intent {
+  const HideSelectionToolbarIntent();
+}
+
+class _HideSelectionToolbarAction
+    extends ContextAction<HideSelectionToolbarIntent> {
+  _HideSelectionToolbarAction(this.state);
+
+  final RawEditorState state;
+
+  @override
+  void invoke(HideSelectionToolbarIntent intent, [BuildContext? context]) {
+    state.hideToolbar();
+  }
+
+  @override
+  bool get isActionEnabled => state.textEditingValue.selection.isValid;
+}
+
+class _UndoKeyboardAction extends ContextAction<UndoTextIntent> {
+  _UndoKeyboardAction(this.state);
+
+  final RawEditorState state;
+
+  @override
+  void invoke(UndoTextIntent intent, [BuildContext? context]) {
+    if (state.controller.hasUndo) {
+      state.controller.undo();
+    }
+  }
+
+  @override
+  bool get isActionEnabled => true;
+}
+
+class _RedoKeyboardAction extends ContextAction<RedoTextIntent> {
+  _RedoKeyboardAction(this.state);
+
+  final RawEditorState state;
+
+  @override
+  void invoke(RedoTextIntent intent, [BuildContext? context]) {
+    if (state.controller.hasRedo) {
+      state.controller.redo();
+    }
+  }
+
+  @override
+  bool get isActionEnabled => true;
 }

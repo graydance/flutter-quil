@@ -1,3 +1,52 @@
+# [6.0.6+1]
+* Revert 6.0.6
+
+# [6.0.6]
+* Fix wrong custom embed key.
+
+# [6.0.5]
+* Fixes toolbar buttons stealing focus from editor.
+
+# [6.0.4]
+* Bug fix for Type 'Uint8List' not found.
+
+# [6.0.3]
+* Add ability to paste images.
+
+# [6.0.2]
+* Address Dart Analysis issues.
+
+# [6.0.1]
+* Changed translation country code (zh_HK -> zh_hk) to lower case, which is required for i18n_extension used in flutter_quill.
+* Add localization in example's main to demonstrate translation.
+* Issue [Windows] selection's copy / paste tool bar not shown #861: add selection's copy / paste toolbar, escape to hide toolbar, mouse right click to show toolbar, ctrl-Y / ctrl-Z to undo / redo.
+* Image and video displayed in Windows platform caused screen flickering while selecting text, a sample_data_nomedia.json asset is added for Desktop to demonstrate the added features.
+* Known issue: keyboard action sometimes causes exception mentioned in Flutter's issue #106475 ([Windows] Keyboard shortcuts stop working after modifier key repeat flutter/flutter#106475).
+* Know issue: user needs to click the editor to get focus before toolbar is able to display.
+
+# [6.0.0] BREAKING CHANGE
+* Removed embed (image, video & formula) blocks from the package to reduce app size.
+
+These blocks have been moved to the package `flutter_quill_extensions`, migrate by filling the `embedBuilders` and `embedButtons` parameters as follows:
+
+```
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+
+QuillEditor.basic(
+  controller: controller,
+  embedBuilders: FlutterQuillEmbeds.builders(),
+);
+
+QuillToolbar.basic(
+  controller: controller,
+  embedButtons: FlutterQuillEmbeds.buttons(),
+);
+```
+
+
+# [5.4.2]
+* Upgrade i18n_extension.
+
 # [5.4.1]
 * Update German Translation. 
 
