@@ -343,6 +343,44 @@ class _TextLineState extends State<TextLine> {
       res = res.merge(TextStyle(fontFamily: font.value));
     }
 
+    final fontWeight = textNode.style.attributes[Attribute.fontWieght.key];
+    if (fontWeight != null && fontWeight.value != null) {
+      FontWeight? fontWeightStyle;
+      switch (fontWeight.value) {
+        case '100':
+          fontWeightStyle = FontWeight.w100;
+          break;
+        case '200':
+          fontWeightStyle = FontWeight.w200;
+          break;
+        case '300':
+          fontWeightStyle = FontWeight.w300;
+          break;
+        case '400':
+          fontWeightStyle = FontWeight.w400;
+          break;
+        case '500':
+          fontWeightStyle = FontWeight.w500;
+          break;
+        case '600':
+          fontWeightStyle = FontWeight.w600;
+          break;
+        case '700':
+          fontWeightStyle = FontWeight.w700;
+          break;
+        case '800':
+          fontWeightStyle = FontWeight.w800;
+          break;
+        case '900':
+          fontWeightStyle = FontWeight.w900;
+          break;
+        default:
+          fontWeightStyle = null;
+          break;
+      }
+      res = res.merge(TextStyle(fontWeight: fontWeightStyle));
+    }
+
     final size = textNode.style.attributes[Attribute.size.key];
     if (size != null && size.value != null) {
       switch (size.value) {

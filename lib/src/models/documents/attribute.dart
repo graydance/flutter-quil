@@ -18,6 +18,7 @@ class Attribute<T> {
   final T value;
 
   static final Map<String, Attribute> _registry = LinkedHashMap.of({
+    Attribute.fontWieght.key: Attribute.fontWieght,
     Attribute.bold.key: Attribute.bold,
     Attribute.italic.key: Attribute.italic,
     Attribute.small.key: Attribute.small,
@@ -43,6 +44,8 @@ class Attribute<T> {
     Attribute.token.key: Attribute.token,
     Attribute.script.key: Attribute.script,
   });
+
+  static const FontWeightAttribute fontWieght = FontWeightAttribute(null);
 
   static const BoldAttribute bold = BoldAttribute();
 
@@ -101,6 +104,7 @@ class Attribute<T> {
   static const String mobileAlignment = 'mobileAlignment';
 
   static final Set<String> inlineKeys = {
+    Attribute.fontWieght.key,
     Attribute.bold.key,
     Attribute.italic.key,
     Attribute.small.key,
@@ -241,6 +245,11 @@ class Attribute<T> {
   String toString() {
     return 'Attribute{key: $key, scope: $scope, value: $value}';
   }
+}
+
+class FontWeightAttribute extends Attribute<String?> {
+  const FontWeightAttribute(String? val)
+      : super('font-weight', AttributeScope.INLINE, val);
 }
 
 class BoldAttribute extends Attribute<bool> {
