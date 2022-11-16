@@ -1,3 +1,27 @@
+# [6.1.5]
+* Fix formatting exception.
+
+# [6.1.4]
+* Add double quotes validation.
+
+# [6.1.3]
+* Revert "fix order list numbering (#988)".
+
+# [6.1.2]
+* Add typing shortcuts.
+
+# [6.1.1]
+* Fix order list numbering.
+
+# [6.1.0]
+* Add keyboard shortcuts for editor actions.
+
+# [6.0.10]
+* Upgrade device info plus to ^7.0.0.
+
+# [6.0.9]
+* Don't throw showAutocorrectionPromptRect not implemented. The function is called with every keystroke as a user is typing.
+
 # [6.0.8+1]
 * Fixes null pointer when setting documents.
 
