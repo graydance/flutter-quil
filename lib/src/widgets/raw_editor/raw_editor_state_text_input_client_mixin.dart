@@ -311,4 +311,23 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
+
+  // 新增方法以兼容 Flutter 3.22.2 的 TextInputClient 接口
+  @override
+  void didChangeInputControl(
+      TextInputControl? oldControl, TextInputControl? newControl) {
+    // 当输入控制改变时的处理，通常不需要特殊处理
+  }
+
+  @override
+  void insertContent(KeyboardInsertedContent content) {
+    // 处理键盘插入的富媒体内容（如图片、贴纸等）
+    // 目前不支持此功能，保持空实现
+  }
+
+  @override
+  void performSelector(String selectorName) {
+    // 执行特定的选择器操作
+    // 目前不需要特殊处理，保持空实现
+  }
 }

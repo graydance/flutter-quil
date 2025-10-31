@@ -10,6 +10,13 @@ import 'package:flutter/scheduler.dart';
 import '../models/documents/nodes/node.dart';
 import 'editor.dart';
 
+/// Signature for when a pointer that might cause a drag has moved.
+/// 用于处理拖动选择更新的回调函数类型（兼容 Flutter 3.22.2）
+typedef DragSelectionUpdateCallback = void Function(
+  DragStartDetails startDetails,
+  DragUpdateDetails updateDetails,
+);
+
 TextSelection localSelection(Node node, TextSelection selection, fromParent) {
   final base = fromParent ? node.offset : node.documentOffset;
   assert(base <= selection.end && selection.start <= base + node.length - 1);

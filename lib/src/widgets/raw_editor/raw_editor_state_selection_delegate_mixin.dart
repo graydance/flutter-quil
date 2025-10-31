@@ -160,4 +160,17 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
 
   @override
   bool get selectAllEnabled => widget.toolbarOptions.selectAll;
+
+  // 新增方法以兼容 Flutter 3.22.2 的 TextSelectionDelegate 接口
+  @override
+  bool get liveTextInputEnabled => false;
+
+  @override
+  bool get lookUpEnabled => false;
+
+  @override
+  bool get searchWebEnabled => false;
+
+  @override
+  bool get shareEnabled => false;
 }
